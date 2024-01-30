@@ -51,5 +51,5 @@ def get_user_input():
 
 
 if __name__ == '__main__':
-    main()
     # test()
+    main()

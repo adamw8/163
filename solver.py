@@ -43,8 +43,8 @@ def _solve_recursively(cards: List[int],
     
     num_cards = len(cards)
     for i in range(num_cards):
-        remanining_cards = copy.deepcopy(cards)
-        card = remanining_cards.pop(i)
+        remanining_cards = cards[:i] + cards[i+1:]
+        card = cards[i]
         
         # try all combinations of operations
         for op_str, operation in OPERATIONS.items():
