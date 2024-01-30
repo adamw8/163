@@ -20,7 +20,9 @@ def _try_subtraction(cards: List[int], card: int, target: int) -> Tuple[bool, st
     return _solve_recursively(cards, target + card)
 
 def _try_multiplication(cards: List[int], card: int, target: int) -> Tuple[bool, str]:
-    if target % card == 0:
+    if card == 0:
+        return False, 'Unsolvable'
+    elif target % card == 0:
         return _solve_recursively(cards, target / card)
     else:
         return False, 'Unsolvable'
