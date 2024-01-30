@@ -1,4 +1,5 @@
 import copy
+import math
 from typing import List, Tuple, Callable
 
 def solve_163(cards: List[int]) -> Tuple[bool, str]:
@@ -40,8 +41,14 @@ OPERATIONS = {
 def _solve_recursively(cards: List[int], 
                        target: int) -> Tuple[bool, str]:
     # base case
-    if len(cards) == 1 and cards[0] == target:
-        return True, str(cards[0])
+    if len(cards) == 1:
+        return (True, str(cards[0])) if cards[0] == target else (False, 'Unsolvable')
+    product = math.prod(cards)
+    if product < target:
+        return False, 'Unsolvable'
+    if product == target:
+        return True, '*'.join([str(card) for card in cards])
+    
     
     num_cards = len(cards)
     for i in range(num_cards):

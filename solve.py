@@ -6,7 +6,10 @@ import solver
 def test():
     num_solved = 0
     avg_solve_time = 0.0
-    total_solves = 100
+    total_solves = 10000
+    # TODO: read all combinations from a yaml file to evalute on all combos
+    # TODO: Label each combination with a solvable or unsolvable
+    # TODO: compute solve times for solvable and unsolvable separately as well
     while num_solved < total_solves:
         start_time = time.time()
         cards = [random.randint(1, 13) for _ in range(6)]
