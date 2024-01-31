@@ -1,17 +1,17 @@
-import copy
+from typing import List, Tuple
 import math
-from typing import List, Tuple, Callable
 
 def solve_163(cards: List[int]) -> Tuple[bool, str]:
-    # simple heuristic to speed up solves
-    sorted_cards = sorted(cards, reverse=False)
-    return solve(sorted_cards, 163)
+    return solve(cards, 163)
 
 def solve(cards, target) -> Tuple[bool, str]:
-    solvable, solution = _solve_recursively(cards, target)
+    sorted_cards = sorted(cards, reverse=False)
+    solvable, solution = _solve_recursively(sorted_cards, target)
     if solvable:
         assert eval(solution) == target
-        solution = solution[1:-1] # remove end parentheses
+        # remove end parentheses
+        if solution[0] == '(' and solution[-1] == ')':
+            solution = solution[1:-1] # remove end parentheses
     return solvable, solution
 
 def _try_addition(cards: List[int], card: int, target: int) -> Tuple[bool, str]:
@@ -24,7 +24,7 @@ def _try_multiplication(cards: List[int], card: int, target: int) -> Tuple[bool,
     if card == 0:
         return False, 'Unsolvable'
     elif target % card == 0:
-        return _solve_recursively(cards, target / card)
+        return _solve_recursively(cards, target // card)
     else:
         return False, 'Unsolvable'
     
@@ -43,11 +43,35 @@ def _solve_recursively(cards: List[int],
     # base case
     if len(cards) == 1:
         return (True, str(cards[0])) if cards[0] == target else (False, 'Unsolvable')
-    product = math.prod(cards)
-    if product < target:
-        return False, 'Unsolvable'
-    if product == target:
-        return True, '*'.join([str(card) for card in cards])
+    
+    # num_ones = 0
+    # for card in cards:
+    #     num_ones = num_ones + 1 if card == 1 else num_ones
+
+    # # Prune: all ones
+    # if num_ones == len(cards):
+    #     if target < 0 or target > num_ones:
+    #         return False, 'Unsolvable'
+    #     if target == 1:
+    #         return True, '*'.join(['1' for _ in range(len(cards))])
+    #     else:
+    #         add_str = '+'.join(['1' for _ in range(target)])
+    #         add_str = f'({add_str})'
+    #         mult_str = '*'.join(['1' for _ in range(num_ones-target)])
+    #         return True, f'{add_str}*{mult_str}'
+
+    # # Prune: product check
+    # product_cards = [card for card in cards if card != 1]
+    # if len(product_cards) > 0:
+    #     # product has at least 1 card
+    #     while num_ones > 0:
+    #         idx = index_of_min(product_cards)
+    #         product_cards[idx] = product_cards[idx] + 1
+    #         num_ones -= 1
+
+    #     product = math.prod(product_cards)
+    #     if product < target:
+    #         return False, 'Unsolvable'
     
     
     num_cards = len(cards)
@@ -63,3 +87,10 @@ def _solve_recursively(cards: List[int],
             
     # tried all combinations    
     return False, 'Unsolvable'
+
+def index_of_min(l: List[int]) -> int:
+    min_index = 0
+    for i in range(len(l)):
+        if l[i] < l[min_index]:
+            min_index = i
+    return min_index

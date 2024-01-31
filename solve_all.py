@@ -1,21 +1,52 @@
 import solver
 import itertools
-import time
 from tqdm import tqdm
-from typing import List
 import os
-import math
+import pickle
 
-def main():  
-    if os.path.exists("all_solutions.txt"):
-        delete = input("Delete exists solutions file? (y/n): ")
+def main():
+    if os.path.exists("solutions/all_solutions.txt"):
+        delete = input("Delete existing solutions file? (y/n): ")
         if delete in ['y', 'yes', 'Y', 'Yes']:
-            os.remove("all_solutions.txt")
+            os.remove("solutions/all_solutions.txt")
         else:
             return
+        
+    if not os.path.exists("solutions/all_test_cases.pkl"):
+        generate_test_cases()
     
-    # create deck of cards
-    start_time = time.time()
+    with open('solutions/all_test_cases.pkl', 'rb') as f:
+        all_test_cases = pickle.load(f)
+    solvable_test_cases = all_test_cases['solvable']
+    unsolvable_test_cases = all_test_cases['unsolvable']
+
+    # get all combinations
+    print("Compiling all combinations...")
+    all_combinations = []
+    for cards in solvable_test_cases.keys():
+        all_combinations.append(cards)
+    for cards in unsolvable_test_cases.keys():
+        all_combinations.append(cards)
+    all_combinations.sort()
+        
+    
+    print("Writing draws to file...")
+    solution_file = open("solutions/all_solutions.txt", "a")
+    for cards in tqdm(all_combinations):
+        if cards in solvable_test_cases:
+            solution = solvable_test_cases[cards]
+        else:
+            solution = 'Unsolvable'
+        solution_file.write(f'{cards}: {solution}\n')
+    
+    # collect statistics    
+    total_combinations = len(all_combinations)
+    total_solvable = len(solvable_test_cases)
+    solvable_percentage = 100.0 * total_solvable / total_combinations
+    solution_file.write(f'{total_solvable} / {total_combinations} ({solvable_percentage:.3f}%) are solvable.')
+    solution_file.close()
+
+def generate_test_cases():
     all_cards = []
     for i in range(1, 14):
         for _ in range(4):
@@ -41,24 +72,16 @@ def main():
 
     # write all solutions to file
     print("Solving all draws...")
-    solution_file = open("all_solutions.txt", "a")
-    total_combinations = 0
-    total_solvable = 0
+    all_test_cases = {'solvable': {},
+                      'unsolvable': {}}
     for cards in tqdm(all_combinations):
         solvable, solution = solver.solve_163(cards)
-        solution_file.write(f'{cards}: {solution}\n')
-
-        if solvable:
-            total_solvable += 1
-        total_combinations += 1
+        all_test_cases['solvable' if solvable else 'unsolvable'][tuple(cards)] = solution
     
-    # collect statistics
-    end_time = time.time()
-    solvable_percentage = 100.0 * total_solvable / total_combinations
-    solution_file.write(f'\nSolve all combinations in {end_time - start_time:.3f} seconds.\n')
-    solution_file.write(f'{total_solvable} / {total_combinations} ({solvable_percentage:.3f}%) are solvable.')
-    solution_file.close()
-
+    with open('solutions/all_test_cases.pkl', 'wb') as f:
+        pickle.dump(all_test_cases, f)
+    
+    print(len(all_test_cases['solvable']), len(all_test_cases['unsolvable']))
 
 if __name__ == '__main__':
     main()

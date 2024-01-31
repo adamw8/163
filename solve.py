@@ -49,6 +49,8 @@ def get_user_input():
     target = input("Enter target number (if 163, press Enter): ")
     if target == '':
         target = 163
+    else:
+        target = int(target)
     
     return cards, target
 
